@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>vite-plugin-wasm</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.addEventListener("unhandledrejection", event => console.error(event.reason.message + "\n" + event.reason.stack));
+    </script>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>
