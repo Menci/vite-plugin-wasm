@@ -16,7 +16,7 @@ export default function wasm(options?: Options): Plugin {
   let originalWasmPlugin: Plugin;
 
   return {
-    name: "vite-plugin-top-level-await",
+    name: "vite-plugin-wasm",
     enforce: "pre",
     configResolved(config) {
       resolvedConfig = config;
