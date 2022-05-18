@@ -3,6 +3,10 @@
   "version": "0.0.2",
   "description": "Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and support `wasm-pack` generated modules.",
   "main": "dist/index.js",
+  "exports": {
+    "import": "./exports/import.mjs",
+    "require": "./exports/require.cjs"
+  },
   "repository": "https://github.com/Menci/vite-plugin-wasm",
   "author": "Menci <huanghaorui301@gmail.com>",
   "license": "MIT",
@@ -18,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest --verbose --coverage --forceExit",
-    "format": "prettier --write '**/*.{mjs,js,ts}'",
+    "format": "prettier --write '**/*.{mjs,cjs,js,ts}'",
     "pretest": "playwright install firefox"
   },
   "devDependencies": {
@@ -48,6 +52,7 @@
     }
   },
   "files": [
-    "/dist"
+    "/dist",
+    "/exports"
   ]
 }
