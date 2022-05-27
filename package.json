@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-wasm",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and support `wasm-pack` generated modules.",
   "main": "dist/index.js",
   "exports": {
