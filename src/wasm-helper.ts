@@ -9,10 +9,18 @@ export const id = "/__vite-plugin-wasm-helper";
 const wasmHelper = async (opts = {}, url: string) => {
   let result: WebAssembly.WebAssemblyInstantiatedSource;
   if (url.startsWith("data:")) {
-    const binaryString = atob(url.replace(/^data:.*?base64,/, ""));
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    const urlContent = url.replace(/^data:.*?base64,/, "");
+    let bytes;
+    if (typeof Buffer === "function" && typeof Buffer.from === "function") {
+      bytes = Buffer.from(urlContent, "base64");
+    } else if (typeof atob === "function") {
+      const binaryString = atob(urlContent);
+      bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+    } else {
+      throw new Error("Cannot decode base64-encoded data URL");
     }
     result = await WebAssembly.instantiate(bytes, opts);
   } else {
