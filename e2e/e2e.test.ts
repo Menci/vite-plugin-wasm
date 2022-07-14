@@ -1,18 +1,23 @@
 /// <reference types="jest-extended" />
 
+import {jest} from '@jest/globals';
 import { firefox } from "playwright";
 
 import * as vite from "vite";
 import type { RollupOutput } from "rollup";
 import vitePluginLegacy from "@vitejs/plugin-legacy";
 import vitePluginTopLevelAwait from "vite-plugin-top-level-await";
-import vitePluginWasm from "../src";
+import vitePluginWasm from "../src/index.js";
 
 import express from "express";
 import mime from "mime";
+import path from "path";
+import url from "url";
 import type { AddressInfo } from "net";
 
-async function build(transformTopLevelAwait: boolean, filterWithRegex: boolean) {
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+async function build(transformTopLevelAwait: boolean) {
   const result = await vite.build({
     root: __dirname,
     build: {
@@ -20,9 +25,7 @@ async function build(transformTopLevelAwait: boolean, filterWithRegex: boolean) 
     },
     plugins: [
       vitePluginLegacy(),
-      vitePluginWasm({
-        filter: filterWithRegex ? /syntect_bg\.wasm$/ : name => name.endsWith("syntect_bg.wasm")
-      }),
+      vitePluginWasm(),
       ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])
     ],
     logLevel: "error"
@@ -78,8 +81,8 @@ async function createBrowser(modernBrowser: boolean) {
   });
 }
 
-async function runTest(transformTopLevelAwait: boolean, modernBrowser: boolean, filterWithRegex: boolean) {
-  const buildResult = await build(transformTopLevelAwait, filterWithRegex);
+async function runTest(transformTopLevelAwait: boolean, modernBrowser: boolean) {
+  const buildResult = await build(transformTopLevelAwait);
   const server = await startServer(buildResult);
 
   const browser = await createBrowser(modernBrowser);
@@ -115,18 +118,14 @@ jest.setTimeout(30000);
 
 describe("E2E test for a modern-legacy build", () => {
   it("should work on modern browser without top-level await transform", async () => {
-    await runTest(false, true, false);
+    await runTest(false, true);
   });
 
   it("should work on modern browser with top-level await transform", async () => {
-    await runTest(true, true, false);
+    await runTest(true, true);
   });
 
   it("should work on legacy browser", async () => {
-    await runTest(false, false, false);
-  });
-
-  it("should work with regex filter", async () => {
-    await runTest(false, true, true);
+    await runTest(false, false);
   });
 });

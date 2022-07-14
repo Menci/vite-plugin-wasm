@@ -3,10 +3,7 @@
   "version": "1.0.1",
   "description": "Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and support `wasm-pack` generated modules.",
   "main": "dist/index.js",
-  "exports": {
-    "import": "./exports/import.mjs",
-    "require": "./exports/require.cjs"
-  },
+  "type": "module",
   "repository": "https://github.com/Menci/vite-plugin-wasm",
   "author": "Menci <huanghaorui301@gmail.com>",
   "license": "MIT",
@@ -21,30 +18,31 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest --verbose --coverage --forceExit",
+    "test": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --verbose --coverage --forceExit",
     "format": "prettier --write '**/*.{mjs,cjs,js,ts}'",
     "pretest": "playwright install firefox"
   },
   "devDependencies": {
     "@syntect/wasm": "^0.0.4",
     "@types/express": "^4.17.13",
-    "@types/jest": "^27.4.1",
-    "@vitejs/plugin-legacy": "^1.7.1",
+    "@types/jest": "^28.1.5",
+    "@vitejs/plugin-legacy": "^2.0.0",
+    "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
-    "express": "^4.17.3",
-    "jest": "^27.5.1",
-    "jest-extended": "^2.0.0",
-    "playwright": "^1.19.2",
-    "prettier": "^2.5.1",
-    "ts-jest": "^27.1.3",
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6",
-    "vite-plugin-top-level-await": "^0.0.1",
-    "wastyle": "^0.0.5"
+    "express": "^4.18.1",
+    "jest": "^28.1.3",
+    "jest-extended": "^3.0.1",
+    "playwright": "^1.23.3",
+    "prettier": "^2.7.1",
+    "terser": "^5.14.2",
+    "ts-jest": "^28.0.6",
+    "typescript": "^4.7.4",
+    "vite": "3",
+    "vite-plugin-top-level-await": "^1.0.1"
   },
   "dependencies": {},
   "peerDependencies": {
-    "vite": "^2.8"
+    "vite": "^3"
   },
   "config": {
     "commitizen": {

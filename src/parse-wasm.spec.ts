@@ -1,7 +1,10 @@
 /// <reference types="jest-extended" />
 
-import { parseWasm } from "./parse-wasm";
+import { createRequire } from "module";
+import { parseWasm } from "./parse-wasm.js";
 import "jest-extended";
+
+const require = createRequire(import.meta.url);
 
 describe("WASM parser", () => {
   it("should parse `wasm-bindgen` generated WASM files correctly", async () => {

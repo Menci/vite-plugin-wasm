@@ -1,17 +1,9 @@
-import path from "path";
-
 import type { Plugin, ResolvedConfig } from "vite";
 
-import { DEFAULT_OPTIONS, Options } from "./options";
-import { parseWasm } from "./parse-wasm";
-import * as wasmHelper from "./wasm-helper";
+import { parseWasm } from "./parse-wasm.js";
+import * as wasmHelper from "./wasm-helper.js";
 
-export default function wasm(options?: Options): Plugin {
-  const resolvedOptions = {
-    ...DEFAULT_OPTIONS,
-    ...(options || /* istanbul ignore next */ {})
-  };
-
+export default function wasm(): Plugin {
   let resolvedConfig: ResolvedConfig;
   let originalWasmPlugin: Plugin;
 
@@ -20,7 +12,7 @@ export default function wasm(options?: Options): Plugin {
     enforce: "pre",
     configResolved(config) {
       resolvedConfig = config;
-      originalWasmPlugin = resolvedConfig.plugins.find(plugin => plugin.name === "vite:wasm");
+      originalWasmPlugin = resolvedConfig.plugins.find(plugin => plugin.name === "vite:wasm-helper");
     },
     resolveId(id) {
       if (id === wasmHelper.id) {
@@ -36,19 +28,10 @@ export default function wasm(options?: Options): Plugin {
         return;
       }
 
-      if (resolvedOptions.filter) {
-        const relativePath = path.relative(resolvedConfig.root, id);
-        if (typeof resolvedOptions.filter === "function") {
-          if (!resolvedOptions.filter(relativePath)) return;
-        } else if (Object.prototype.toString.call(resolvedOptions.filter) === "[object RegExp]") {
-          if (!resolvedOptions.filter.test(relativePath)) return;
-        }
-      }
-
       const { imports, exports } = await parseWasm(id);
 
       // Make a call to Vite's internal `fileToUrl` function by calling Vite's original WASM plugin's load()
-      const originalLoadResult = (await originalWasmPlugin.load.call(this, id)) as string;
+      const originalLoadResult = (await originalWasmPlugin.load.call(this, id + "?init")) as string;
       const url = JSON.parse(/".+"/g.exec(originalLoadResult.trim().split("\n")[1])[0]) as string;
 
       return `
