@@ -24,4 +24,4 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
-          tag: ${{ endsWith(github.ref_name, 'next') && 'next' || 'latest' }}
+          tag: ${{ endsWith(github.ref_name, 'next') && 'next' || (startsWith(github.ref_name, 'v1') && 'v1' || 'latest') }}
