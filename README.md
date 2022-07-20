@@ -51,6 +51,20 @@ export default defineConfig({
 });
 ```
 
+If you are getting ESBuild errors of WASM files (In the format `No loader is configured for ".wasm" files: node_modules/somepackage/somefile.wasm`), add the corresponding imported module within `node_modules` to `optimizeDeps.exclude`, e.g.:
+
+```typescript
+export default defineConfig({
+  optimizeDeps: {
+    exclude: [
+      "@syntect/wasm"
+    ]
+  }
+});
+```
+
+See the issue [#8](https://github.com/Menci/vite-plugin-wasm/issues/8) and upstream discussion [vitejs/vite#9256](https://github.com/vitejs/vite/discussions/9256).
+
 # Notes
 
 TypeScript typing is broken. Since we can't declare a module with `Record<string, any>` as its named export map. Your `import ... from "./module.wasm";` will still got Vite's bulit-in typing, but the transformed code is fine. So just use an asterisk import `import * as wasmModule from "./module.wasm"` and type assertion (you have typing for your WASM files, right?).
