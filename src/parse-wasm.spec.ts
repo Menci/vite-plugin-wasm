@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import { parseWasm } from "./parse-wasm.js";
 import "jest-extended";
 
+// @ts-ignore this file is ESM
 const require = createRequire(import.meta.url);
 
 describe("WASM parser", () => {

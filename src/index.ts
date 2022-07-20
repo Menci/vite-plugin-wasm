@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from "vite";
 
-import { parseWasm } from "./parse-wasm.js";
-import * as wasmHelper from "./wasm-helper.js";
+import { parseWasm } from "./parse-wasm";
+import * as wasmHelper from "./wasm-helper";
 
 export default function wasm(): Plugin {
   let resolvedConfig: ResolvedConfig;

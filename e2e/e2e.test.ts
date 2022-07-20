@@ -1,6 +1,6 @@
 /// <reference types="jest-extended" />
 
-import {jest} from '@jest/globals';
+import { jest } from "@jest/globals";
 import { firefox } from "playwright";
 
 import * as vite from "vite";
@@ -35,7 +35,7 @@ async function build(transformTopLevelAwait: boolean) {
     throw new TypeError("Internal error in Vite");
   }
 
-  return "output" in result ? result : <RollupOutput>{ output: result.flatMap(({ output }) => output) };
+  return "output" in result ? result : { output: result.flatMap(({ output }) => output) } as RollupOutput;
 }
 
 async function startServer(buildResult: RollupOutput): Promise<string> {
