@@ -6,7 +6,7 @@ import * as wasmHelper from "./wasm-helper";
 export default function wasm(): Plugin {
   let resolvedConfig: ResolvedConfig;
   let originalWasmPlugin: Plugin;
-  let resolvePlugin: Plugin;
+  let moduleIds: string[] = [];
 
   return {
     name: "vite-plugin-wasm",
@@ -14,7 +14,6 @@ export default function wasm(): Plugin {
     configResolved(config) {
       resolvedConfig = config;
       originalWasmPlugin = resolvedConfig.plugins.find(plugin => plugin.name === "vite:wasm-helper");
-      resolvePlugin = resolvedConfig.plugins.find(plugin => plugin.name === "vite:resolve");
     },
     resolveId(id) {
       if (id === wasmHelper.id) {
@@ -22,6 +21,7 @@ export default function wasm(): Plugin {
       }
     },
     async load(id) {
+      moduleIds.push(id);
       if (id === wasmHelper.id) {
         return `export default ${wasmHelper.code}`;
       }
@@ -35,12 +35,7 @@ export default function wasm(): Plugin {
       // Make a call to Vite's internal `fileToUrl` function by calling Vite's original WASM plugin's load()
       const originalLoadResult = (await originalWasmPlugin.load.call(this, id + "?init")) as string;
       const url = JSON.parse(/".+"/g.exec(originalLoadResult.trim().split("\n")[1])[0]) as string;
-      const importUrls = await Promise.all(
-        imports.map(async ({ from }) => {
-          const importerPath = id.slice(0, id.lastIndexOf("/")) + from.slice(from.lastIndexOf("/"));
-          return resolvePlugin.resolveId.call(this, importerPath, null, null);
-        })
-      );
+      const importUrls = await Promise.all(imports.map(async ({ from }) => getImportUrl(id, from, moduleIds)));
 
       return `
 import __vite__initWasm from "${wasmHelper.id}"
@@ -64,4 +59,30 @@ ${exports
 `;
     }
   };
+}
+
+async function getImportUrl(id: string, from: string, moduleIds: string[]) {
+  const importerPath = id.slice(0, id.lastIndexOf("/")) + from.slice(from.lastIndexOf("/"));
+  if (importerPath.indexOf("node_modules") === -1) {
+    // Local js won't have versionHash, so the importerPath is importerId
+    return importerPath;
+  }
+  // The module may be pre-bundled, pre-bundling js file has higher priority than original file.
+  const preBundlingPath = getPreBundlePath(importerPath);
+  return (
+    moduleIds.find(v => v.startsWith(preBundlingPath)) ||
+    moduleIds.find(v => v.startsWith(importerPath)) ||
+    importerPath
+  );
+}
+
+function getPreBundlePath(importerPath: string) {
+  const [prefix, modulePath] = importerPath.split("node_modules/");
+  const modulePathParts = modulePath.split("/");
+  let pkgName = modulePathParts[0];
+  if (pkgName.startsWith("@")) {
+    // Scope Package
+    pkgName = `${modulePathParts[0]}_${modulePathParts[1]}`;
+  }
+  return `${prefix}node_modules/.vite/deps/${pkgName}.js`;
 }
