@@ -62,7 +62,7 @@ ${exports
 }
 
 async function getImportUrl(id: string, from: string, moduleIds: string[]) {
-  const importerPath = id.slice(0, id.lastIndexOf("/")) + from.slice(from.lastIndexOf("/"));
+  const importerPath = path.resolve(id, "../" + from);
   if (importerPath.indexOf("node_modules") === -1) {
     // Local js won't have versionHash, so the importerPath is importerId
     return importerPath;
