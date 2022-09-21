@@ -17,17 +17,13 @@ import type { AddressInfo } from "net";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-async function build(transformTopLevelAwait: boolean) {
+async function buildAndStartProdServer(transformTopLevelAwait: boolean): Promise<string> {
   const result = await vite.build({
     root: __dirname,
     build: {
       target: "esnext"
     },
-    plugins: [
-      vitePluginLegacy(),
-      vitePluginWasm(),
-      ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])
-    ],
+    plugins: [vitePluginLegacy(), vitePluginWasm(), ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])],
     logLevel: "error"
   });
 
@@ -35,10 +31,9 @@ async function build(transformTopLevelAwait: boolean) {
     throw new TypeError("Internal error in Vite");
   }
 
-  return "output" in result ? result : { output: result.flatMap(({ output }) => output) } as RollupOutput;
-}
+  const buildResult =
+    "output" in result ? result : ({ output: result.flatMap(({ output }) => output) } as RollupOutput);
 
-async function startServer(buildResult: RollupOutput): Promise<string> {
   const app = express();
   let port = 0;
 
@@ -72,6 +67,20 @@ async function startServer(buildResult: RollupOutput): Promise<string> {
   return `http://127.0.0.1:${port}/`;
 }
 
+async function startDevServer(transformTopLevelAwait: boolean): Promise<string> {
+  const devServer = await vite.createServer({
+    root: __dirname,
+    plugins: [vitePluginLegacy(), vitePluginWasm(), ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])],
+    logLevel: "error"
+  });
+
+  await devServer.listen();
+  const url = devServer.resolvedUrls?.local?.[0];
+  if (!url) throw new Error("Vite dev server doen't return a preview URL");
+
+  return url;
+}
+
 async function createBrowser(modernBrowser: boolean) {
   return await firefox.launch({
     firefoxUserPrefs: {
@@ -81,9 +90,8 @@ async function createBrowser(modernBrowser: boolean) {
   });
 }
 
-async function runTest(transformTopLevelAwait: boolean, modernBrowser: boolean) {
-  const buildResult = await build(transformTopLevelAwait);
-  const server = await startServer(buildResult);
+async function runTest(devServer: boolean, transformTopLevelAwait: boolean, modernBrowser: boolean) {
+  const server = await (devServer ? startDevServer : buildAndStartProdServer)(transformTopLevelAwait);
 
   const browser = await createBrowser(modernBrowser);
   const page = await browser.newPage();
@@ -117,15 +125,19 @@ async function runTest(transformTopLevelAwait: boolean, modernBrowser: boolean) 
 jest.setTimeout(30000);
 
 describe("E2E test for a modern-legacy build", () => {
+  it("should work on modern browser in Vite dev server", async () => {
+    await runTest(true, false, true);
+  });
+
   it("should work on modern browser without top-level await transform", async () => {
-    await runTest(false, true);
+    await runTest(false, false, true);
   });
 
   it("should work on modern browser with top-level await transform", async () => {
-    await runTest(true, true);
+    await runTest(false, true, true);
   });
 
   it("should work on legacy browser", async () => {
-    await runTest(false, false);
+    await runTest(false, false, false);
   });
 });
