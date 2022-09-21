@@ -1,4 +1,5 @@
 import type { Plugin, ResolvedConfig } from "vite";
+import path from "path";
 
 import { parseWasm } from "./parse-wasm";
 import * as wasmHelper from "./wasm-helper";
