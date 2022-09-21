@@ -2,12 +2,12 @@
 module.exports = {
   preset: "ts-jest/presets/default-esm",
   globals: {
-    'ts-jest': {
-      useESM: true,
-    },
+    "ts-jest": {
+      useESM: true
+    }
   },
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
+    "^(\\.{1,2}/.*)\\.js$": "$1"
   },
   testEnvironment: "node",
   setupFilesAfterEnv: ["jest-extended/all"],
