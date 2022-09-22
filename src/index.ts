@@ -3,10 +3,10 @@ import type { Plugin, ResolvedConfig } from "vite";
 import { parseWasm } from "./parse-wasm";
 import * as wasmHelper from "./wasm-helper";
 
-export default function wasm(): Plugin {
+export default function wasm(): any {
   let resolvedConfig: ResolvedConfig;
 
-  return {
+  return <Plugin>{
     name: "vite-plugin-wasm",
     enforce: "pre",
     configResolved(config) {

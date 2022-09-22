@@ -10,16 +10,10 @@ Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and 
 
 ## Installation
 
-For **Vite 3.x** (latest), please use **2.x** version of this plugin (pure ESM, since Vite is pure ESM):
+Now this plugin supports both Vite 2.x and 3.x. Just install it:
 
 ```bash
-yarn add -D vite-plugin-wasm@^2
-```
-
-For **Vite 2.x** (latest), please use **1.x** version of this plugin:
-
-```bash
-yarn add -D vite-plugin-wasm@^1
+yarn add -D vite-plugin-wasm
 ```
 
 ## Usage
@@ -32,19 +26,6 @@ import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
   plugins: [
-    /**
-     * Since 2.x version of this plugin, the `filter` option has been removed.
-     * 
-     * For 1.x (with Vite 2.x):
-     *   By default ALL `.wasm` imports will be transformed to WebAssembly ES module.
-     *   You can also set a filter (function or regex) to match files you want to transform.
-     *   Other files will fallback to Vite's default WASM loader (i.e. You need to call `initWasm()` for them). 
-     *   ```js
-     *   wasm({
-     *     filter: /syntect_bg.wasm$/
-     *   })
-     *   ```
-     */
     wasm(),
     topLevelAwait()
   ]

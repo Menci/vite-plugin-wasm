@@ -1,0 +1,13 @@
+diff --git a/node_modules/vite/dist/node/chunks/dep-689425f3.js b/node_modules/vite/dist/node/chunks/dep-689425f3.js
+index babf8d5..019289d 100644
+--- a/node_modules/vite/dist/node/chunks/dep-689425f3.js
++++ b/node_modules/vite/dist/node/chunks/dep-689425f3.js
+@@ -38271,7 +38271,7 @@ const isModernFlag = `__VITE_IS_MODERN__`;
+ const preloadMethod = `__vitePreload`;
+ const preloadMarker = `__VITE_PRELOAD__`;
+ const preloadBaseMarker = `__VITE_PRELOAD_BASE__`;
+-const preloadHelperId = 'vite/preload-helper';
++const preloadHelperId = '\0vite/preload-helper';
+ const preloadMarkerWithQuote = `"${preloadMarker}"`;
+ const dynamicImportPrefixRE = /import\s*\(/;
+ /**
