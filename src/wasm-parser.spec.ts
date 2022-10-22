@@ -1,7 +1,7 @@
 /// <reference types="jest-extended" />
 
 import { createRequire } from "module";
-import { parseWasm } from "./parse-wasm.js";
+import { parseWasm } from "./wasm-parser.js";
 import "jest-extended";
 
 // @ts-ignore this file is ESM

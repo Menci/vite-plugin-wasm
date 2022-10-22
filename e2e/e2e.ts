@@ -9,6 +9,7 @@ type RollupOutput = any;
 import vitePluginWasm from "../src/index.js";
 
 import express from "express";
+import waitPort from "wait-port";
 import mime from "mime";
 import path from "path";
 import url from "url";
@@ -102,7 +103,8 @@ async function startDevServer(vitePackages: VitePackages): Promise<string> {
   if (typeof listeningAddress !== "object" || !listeningAddress)
     throw new Error("Vite dev server doen't listen on a port");
 
-  return `http://127.0.0.1:${listeningAddress.port}`;
+  await waitPort({ port: listeningAddress.port, output: "silent" });
+  return `http://localhost:${listeningAddress.port}`;
 }
 
 async function createBrowser(modernBrowser: boolean) {

@@ -1,16 +1,24 @@
-import type { Plugin, ResolvedConfig } from "vite";
+import type { Plugin } from "vite";
 
-import { parseWasm } from "./parse-wasm";
+import { esbuildPlugin } from "./esbuild-plugin";
+import { generateGlueCode } from "./wasm-parser";
 import * as wasmHelper from "./wasm-helper";
 
 export default function wasm(): any {
-  let resolvedConfig: ResolvedConfig;
-
   return <Plugin>{
     name: "vite-plugin-wasm",
     enforce: "pre",
     configResolved(config) {
-      resolvedConfig = config;
+      if (config.optimizeDeps?.esbuildOptions) {
+        // https://github.com/Menci/vite-plugin-wasm/pull/11
+        if (!config.optimizeDeps.esbuildOptions.plugins) {
+          config.optimizeDeps.esbuildOptions.plugins = [];
+        }
+        config.optimizeDeps.esbuildOptions.plugins.push(esbuildPlugin());
+
+        // Allow usage of top-level await during development build (not affacting the production build)
+        config.optimizeDeps.esbuildOptions.target = "esnext";
+      }
     },
     resolveId(id) {
       if (id === wasmHelper.id) {
@@ -26,31 +34,13 @@ export default function wasm(): any {
         return;
       }
 
-      const { imports, exports } = await parseWasm(id);
-
       // Get WASM's download URL by Vite's ?url import
       const wasmUrlUrl = id + "?url";
 
       return `
 import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)};
 import __vite__initWasm from "${wasmHelper.id}"
-${imports
-  .map(
-    ({ from, names }, i) =>
-      `import { ${names.map((name, j) => `${name} as __vite__wasmImport_${i}_${j}`).join(", ")} } from ${JSON.stringify(
-        from
-      )};`
-  )
-  .join("\n")}
-const __vite__wasmModule = await __vite__initWasm({ ${imports
-        .map(
-          ({ from, names }, i) =>
-            `${JSON.stringify(from)}: { ${names.map((name, j) => `${name}: __vite__wasmImport_${i}_${j}`).join(", ")} }`
-        )
-        .join(", ")} }, __vite__wasmUrl);
-${exports
-  .map(name => `export ${name === "default" ? "default" : `const ${name} =`} __vite__wasmModule.${name};`)
-  .join("\n")}
+${await generateGlueCode(id, { initWasm: "__vite__initWasm", wasmUrl: "__vite__wasmUrl" })}
 `;
     }
   };

@@ -1,12 +1,20 @@
-// @syntect/wasm requires WASM to ES module transform
-import { highlight } from "@syntect/wasm";
+import { parse } from "@jsona/openapi";
 
-const TEST_CODE = "#include <cstdio>";
-const TEST_LANG = "cpp";
+const expectedResult = {
+  value: {
+    openapi: "3.0.0",
+    info: { version: "0.1.0", title: "openapi" },
+    paths: {},
+    components: {}
+  },
+  errors: null
+};
+const actualResult = parse("{}");
 
-const div = document.createElement("div");
-div.innerHTML = highlight(TEST_CODE, TEST_LANG, "hl-").html;
-const result = div.innerText.trim();
-if (result !== TEST_CODE) {
-  console.error(`Expected ${JSON.stringify(TEST_CODE)} but got ${JSON.stringify(result)}.`);
+const expectedJson = JSON.stringify(expectedResult);
+const actualJson = JSON.stringify(actualResult);
+if (actualJson !== expectedJson) {
+  console.error(`
+          Expected ${expectedJson}
+          but got  ${actualJson}`);
 }

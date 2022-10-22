@@ -29,3 +29,28 @@ export async function parseWasm(wasmFilePath: string): Promise<WasmInfo> {
     throw new Error(`Failed to parse WASM file: ${e.message}`);
   }
 }
+
+export async function generateGlueCode(
+  wasmFilePath: string,
+  names: { initWasm: string; wasmUrl: string }
+): Promise<string> {
+  const { imports, exports } = await parseWasm(wasmFilePath);
+  return `
+${imports
+  .map(
+    ({ from, names }, i) =>
+      `import { ${names.map((name, j) => `${name} as __vite__wasmImport_${i}_${j}`).join(", ")} } from ${JSON.stringify(
+        from
+      )};`
+  )
+  .join("\n")}
+const __vite__wasmModule = await ${names.initWasm}({ ${imports
+    .map(
+      ({ from, names }, i) =>
+        `${JSON.stringify(from)}: { ${names.map((name, j) => `${name}: __vite__wasmImport_${i}_${j}`).join(", ")} }`
+    )
+    .join(", ")} }, ${names.wasmUrl});
+${exports
+  .map(name => `export ${name === "default" ? "default" : `const ${name} =`} __vite__wasmModule.${name};`)
+  .join("\n")}`;
+}
