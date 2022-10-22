@@ -32,7 +32,7 @@ export default defineConfig({
 });
 ```
 
-If you are getting ESBuild errors of WASM files (In the format `No loader is configured for ".wasm" files: node_modules/somepackage/somefile.wasm`), add the corresponding imported module within `node_modules` to `optimizeDeps.exclude`, e.g.:
+If you are getting ESBuild errors of WASM files (In the format `No loader is configured for ".wasm" files: node_modules/somepackage/somefile.wasm`) with **Vite < 3.0.3**, please upgrade your Vite. A workaround is adding the corresponding imported module within `node_modules` to `optimizeDeps.exclude`, e.g.:
 
 ```typescript
 export default defineConfig({
@@ -43,8 +43,6 @@ export default defineConfig({
   }
 });
 ```
-
-See the issue [#8](https://github.com/Menci/vite-plugin-wasm/issues/8) and upstream discussion [vitejs/vite#9256](https://github.com/vitejs/vite/discussions/9256).
 
 # Notes
 
