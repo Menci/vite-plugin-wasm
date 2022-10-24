@@ -5,6 +5,8 @@ import { generateGlueCode } from "./wasm-parser";
 import * as wasmHelper from "./wasm-helper";
 
 export default function wasm(): any {
+  let rootPath: string;
+
   return <Plugin>{
     name: "vite-plugin-wasm",
     enforce: "pre",
@@ -19,6 +21,8 @@ export default function wasm(): any {
         // Allow usage of top-level await during development build (not affacting the production build)
         config.optimizeDeps.esbuildOptions.target = "esnext";
       }
+
+      rootPath = config.root;
     },
     resolveId(id) {
       if (id === wasmHelper.id) {
@@ -40,7 +44,7 @@ export default function wasm(): any {
       return `
 import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)};
 import __vite__initWasm from "${wasmHelper.id}"
-${await generateGlueCode(id, { initWasm: "__vite__initWasm", wasmUrl: "__vite__wasmUrl" })}
+${await generateGlueCode(id, rootPath, { initWasm: "__vite__initWasm", wasmUrl: "__vite__wasmUrl" })}
 `;
     }
   };

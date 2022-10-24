@@ -23,7 +23,7 @@ export function esbuildPlugin(): Plugin {
           contents: `
 const wasmUrl = "${dataUri}";
 const initWasm = ${wasmHelper.code};
-${await generateGlueCode(args.path, { initWasm: "initWasm", wasmUrl: "wasmUrl" })}
+${await generateGlueCode(args.path, build.initialOptions.absWorkingDir, { initWasm: "initWasm", wasmUrl: "wasmUrl" })}
 `,
           loader: "js",
           resolveDir: path.dirname(args.path)

@@ -6,7 +6,9 @@
 export const id = "/__vite-plugin-wasm-helper";
 
 /* istanbul ignore next */
-const wasmHelper = async (opts = {}, url: string) => {
+const wasmHelper = async (opts = {}, url: string, root: string) => {
+  var inBrowser = !!(typeof window !== "undefined" && window.document && window.document.createElement);
+
   let result: WebAssembly.WebAssemblyInstantiatedSource;
   if (url.startsWith("data:")) {
     const urlContent = url.replace(/^data:.*?base64,/, "");
@@ -23,7 +25,7 @@ const wasmHelper = async (opts = {}, url: string) => {
       throw new Error("Cannot decode base64-encoded data URL");
     }
     result = await WebAssembly.instantiate(bytes, opts);
-  } else {
+  } else if (inBrowser) {
     // https://github.com/mdn/webassembly-examples/issues/5
     // WebAssembly.instantiateStreaming requires the server to provide the
     // correct MIME type for .wasm files, which unfortunately doesn't work for
@@ -38,6 +40,10 @@ const wasmHelper = async (opts = {}, url: string) => {
       const buffer = await response.arrayBuffer();
       result = await WebAssembly.instantiate(buffer, opts);
     }
+  } else {
+    const { readFile } = require("node:fs/promises");
+    const file = await readFile(root + url);
+    result = await WebAssembly.instantiate(new Uint8Array(file), opts);
   }
   return result.instance.exports;
 };

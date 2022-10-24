@@ -32,6 +32,7 @@ export async function parseWasm(wasmFilePath: string): Promise<WasmInfo> {
 
 export async function generateGlueCode(
   wasmFilePath: string,
+  rootPath: string,
   names: { initWasm: string; wasmUrl: string }
 ): Promise<string> {
   const { imports, exports } = await parseWasm(wasmFilePath);
@@ -49,7 +50,7 @@ const __vite__wasmModule = await ${names.initWasm}({ ${imports
       ({ from, names }, i) =>
         `${JSON.stringify(from)}: { ${names.map((name, j) => `${name}: __vite__wasmImport_${i}_${j}`).join(", ")} }`
     )
-    .join(", ")} }, ${names.wasmUrl});
+    .join(", ")} }, ${names.wasmUrl}, ${JSON.stringify(rootPath)});
 ${exports
   .map(name => `export ${name === "default" ? "default" : `const ${name} =`} __vite__wasmModule.${name};`)
   .join("\n")}`;
