@@ -44,6 +44,26 @@ export default defineConfig({
 });
 ```
 
+## Web Worker
+
+To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins` and set `worker.format` to `"es"` (See [#13](https://github.com/Menci/vite-plugin-wasm/issues/13#issuecomment-1295220450)):
+
+```ts
+export default defineConfig({
+  plugins: [
+    wasm(),
+    topLevelAwait()
+  ],
+  worker: {
+    format: "es",
+    plugins: [
+      wasm(),
+      topLevelAwait()
+    ]
+  }
+});
+```
+
 # Notes
 
 TypeScript typing is broken. Since we can't declare a module with `Record<string, any>` as its named export map. Your `import ... from "./module.wasm";` will still got Vite's bulit-in typing, but the transformed code is fine. So just use an asterisk import `import * as wasmModule from "./module.wasm"` and type assertion (you have typing for your WASM files, right?).
