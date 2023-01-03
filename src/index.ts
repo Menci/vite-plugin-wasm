@@ -38,6 +38,7 @@ export default function wasm(): any {
       const wasmUrlUrl = id + "?url";
 
       return `
+URL = globalThis.URL
 import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)};
 import __vite__initWasm from "${wasmHelper.id}"
 ${await generateGlueCode(id, { initWasm: "__vite__initWasm", wasmUrl: "__vite__wasmUrl" })}
