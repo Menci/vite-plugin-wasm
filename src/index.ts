@@ -43,7 +43,7 @@ export default function wasm(): any {
       // Get WASM's download URL by Vite's ?url import
       const wasmUrlUrl = id + "?url";
       const wasmUrlDeclaration =
-        options.ssr || runningInVitest
+        options?.ssr || runningInVitest
           ? `const __vite__wasmUrl = ${JSON.stringify(await createBase64UriForWasm(id))}`
           : `import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)}`;
 
