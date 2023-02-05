@@ -3,6 +3,7 @@ import type { Plugin } from "vite";
 import { esbuildPlugin } from "./esbuild-plugin";
 import { generateGlueCode } from "./wasm-parser";
 import * as wasmHelper from "./wasm-helper";
+import { createBase64UriForWasm } from "./util";
 
 export default function wasm(): any {
   return <Plugin>{
@@ -25,7 +26,7 @@ export default function wasm(): any {
         return id;
       }
     },
-    async load(id) {
+    async load(id, options) {
       if (id === wasmHelper.id) {
         return `export default ${wasmHelper.code}`;
       }
@@ -36,10 +37,13 @@ export default function wasm(): any {
 
       // Get WASM's download URL by Vite's ?url import
       const wasmUrlUrl = id + "?url";
+      const wasmUrlDeclaration = options.ssr
+        ? `const __vite__wasmUrl = ${JSON.stringify(await createBase64UriForWasm(id))}`
+        : `import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)}`;
 
       return `
 URL = globalThis.URL
-import __vite__wasmUrl from ${JSON.stringify(wasmUrlUrl)};
+${wasmUrlDeclaration}
 import __vite__initWasm from "${wasmHelper.id}"
 ${await generateGlueCode(id, { initWasm: "__vite__initWasm", wasmUrl: "__vite__wasmUrl" })}
 `;

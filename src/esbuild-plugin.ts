@@ -1,9 +1,9 @@
-import fs from "fs";
 import { posix as path } from "path";
 import { Plugin } from "esbuild";
 
 import * as wasmHelper from "./wasm-helper";
 import { generateGlueCode } from "./wasm-parser";
+import { createBase64UriForWasm } from "./util";
 
 export function esbuildPlugin(): Plugin {
   return {
@@ -17,8 +17,7 @@ export function esbuildPlugin(): Plugin {
       }));
 
       build.onLoad({ filter: /.*/, namespace: NAMESPACE }, async args => {
-        const base64 = await fs.promises.readFile(args.path, "base64");
-        const dataUri = "data:application/wasm;base64," + base64;
+        const dataUri = await createBase64UriForWasm(args.path);
         return {
           contents: `
 const wasmUrl = "${dataUri}";
