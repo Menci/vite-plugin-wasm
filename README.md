@@ -46,7 +46,7 @@ export default defineConfig({
 
 ## Web Worker
 
-To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins` and set `worker.format` to `"es"` (See [#13](https://github.com/Menci/vite-plugin-wasm/issues/13#issuecomment-1295220450)):
+To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins`. To support Firefox, don't use ES workers. leave `worker.format` default and use `vite-plugin-top-level-await` >= 1.3.0:
 
 ```ts
 export default defineConfig({
@@ -55,7 +55,8 @@ export default defineConfig({
     topLevelAwait()
   ],
   worker: {
-    format: "es",
+    // Not needed with vite-plugin-top-level-await >= 1.3.0
+    // format: "es",
     plugins: [
       wasm(),
       topLevelAwait()
