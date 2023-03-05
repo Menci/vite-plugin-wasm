@@ -1,0 +1,12 @@
+{
+  "name": "dependencies-vite4",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^4",
+    "vite": "4",
+    "vite-plugin-top-level-await": "^1.1.1"
+  }
+}
