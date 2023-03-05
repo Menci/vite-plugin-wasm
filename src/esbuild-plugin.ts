@@ -1,5 +1,6 @@
 import path from "path";
 import { Plugin } from "esbuild";
+import { createRequire } from "module";
 
 import * as wasmHelper from "./wasm-helper";
 import { generateGlueCode } from "./wasm-parser";
@@ -12,7 +13,7 @@ export function esbuildPlugin(): Plugin {
       const NAMESPACE = "vite-plugin-wasm-namespace";
 
       build.onResolve({ filter: /\.wasm$/ }, args => ({
-        path: path.join(path.dirname(args.importer), args.path),
+        path: createRequire(args.importer).resolve(args.path),
         namespace: NAMESPACE
       }));
 
