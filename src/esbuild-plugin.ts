@@ -1,4 +1,4 @@
-import { posix as path } from "path";
+import path from "path";
 import { Plugin } from "esbuild";
 
 import * as wasmHelper from "./wasm-helper";
