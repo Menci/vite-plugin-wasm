@@ -32,6 +32,11 @@ type VitePackages =
       vite: typeof import("./vite4/node_modules/vite");
       vitePluginLegacy: typeof import("./vite4/node_modules/@vitejs/plugin-legacy")["default"];
       vitePluginTopLevelAwait: typeof import("./vite4/node_modules/vite-plugin-top-level-await")["default"];
+    }
+    | {
+      vite: typeof import("./vite5/node_modules/vite");
+      vitePluginLegacy: typeof import("./vite5/node_modules/@vitejs/plugin-legacy")["default"];
+      vitePluginTopLevelAwait: typeof import("./vite5/node_modules/vite-plugin-top-level-await")["default"];
     };
 
 async function buildAndStartProdServer(
