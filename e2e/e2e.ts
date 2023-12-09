@@ -80,7 +80,7 @@ async function buildAndStartProdServer(
     if (filePath in bundle) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Methods", "*");
-      const contentType = mime.lookup(filePath);
+      const contentType = mime.getType(filePath);
       const contentTypeWithEncoding = contentType + (contentType.includes("text/") ? "; charset=utf-8" : "");
       res.contentType(contentTypeWithEncoding);
       res.send(bundle[filePath]);
