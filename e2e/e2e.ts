@@ -192,6 +192,12 @@ export function runTests(viteVersion: number, vitePackages: VitePackages) {
   jest.setTimeout(60000);
 
   describe(`E2E test for Vite ${viteVersion}`, () => {
+    const nodeVersion = Number(process.versions.node.split(".")[0]);
+    if (viteVersion >= 5 && nodeVersion < 18) {
+      it(`vite ${viteVersion}: skipped on Node.js ${nodeVersion}`, async () => {});
+      return;
+    }
+
     it(`vite ${viteVersion}: should work on modern browser in Vite dev server`, async () => {
       await runTestWithRetry(vitePackages, true, false, true);
     });
