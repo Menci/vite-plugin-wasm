@@ -2,8 +2,9 @@
 module.exports = {
   preset: "ts-jest/presets/default-esm",
   transform: {
-    '^.+\\.ts?$': [
-      'ts-jest', {
+    "^.+\\.ts?$": [
+      "ts-jest",
+      {
         useESM: true
       }
     ]
