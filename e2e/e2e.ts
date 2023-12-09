@@ -20,23 +20,23 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 type VitePackages =
   | {
       vite: typeof import("./vite2/node_modules/vite");
-      vitePluginLegacy: typeof import("./vite2/node_modules/@vitejs/plugin-legacy")["default"];
-      vitePluginTopLevelAwait: typeof import("./vite2/node_modules/vite-plugin-top-level-await")["default"];
+      vitePluginLegacy: (typeof import("./vite2/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite2/node_modules/vite-plugin-top-level-await"))["default"];
     }
   | {
       vite: typeof import("./vite3/node_modules/vite");
-      vitePluginLegacy: typeof import("./vite3/node_modules/@vitejs/plugin-legacy")["default"];
-      vitePluginTopLevelAwait: typeof import("./vite3/node_modules/vite-plugin-top-level-await")["default"];
+      vitePluginLegacy: (typeof import("./vite3/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite3/node_modules/vite-plugin-top-level-await"))["default"];
     }
   | {
       vite: typeof import("./vite4/node_modules/vite");
-      vitePluginLegacy: typeof import("./vite4/node_modules/@vitejs/plugin-legacy")["default"];
-      vitePluginTopLevelAwait: typeof import("./vite4/node_modules/vite-plugin-top-level-await")["default"];
+      vitePluginLegacy: (typeof import("./vite4/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite4/node_modules/vite-plugin-top-level-await"))["default"];
     }
   | {
       vite: typeof import("./vite5/node_modules/vite");
-      vitePluginLegacy: typeof import("./vite5/node_modules/@vitejs/plugin-legacy")["default"];
-      vitePluginTopLevelAwait: typeof import("./vite5/node_modules/vite-plugin-top-level-await")["default"];
+      vitePluginLegacy: (typeof import("./vite5/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite5/node_modules/vite-plugin-top-level-await"))["default"];
     };
 
 async function buildAndStartProdServer(
@@ -188,7 +188,7 @@ const runTestWithRetry = async (...args: Parameters<typeof runTest>) => {
   }
 };
 
-export function runTests(viteVersion: number, vitePackages: VitePackages) {
+export function runTests(viteVersion: number, importVitePackages: () => Promise<VitePackages>) {
   jest.setTimeout(60000);
 
   describe(`E2E test for Vite ${viteVersion}`, () => {
@@ -199,19 +199,19 @@ export function runTests(viteVersion: number, vitePackages: VitePackages) {
     }
 
     it(`vite ${viteVersion}: should work on modern browser in Vite dev server`, async () => {
-      await runTestWithRetry(vitePackages, true, false, true);
+      await runTestWithRetry(await importVitePackages(), true, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser without top-level await transform`, async () => {
-      await runTestWithRetry(vitePackages, false, false, true);
+      await runTestWithRetry(await importVitePackages(), false, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser with top-level await transform`, async () => {
-      await runTestWithRetry(vitePackages, false, true, true);
+      await runTestWithRetry(await importVitePackages(), false, true, true);
     });
 
     it(`vite ${viteVersion}: should work on legacy browser`, async () => {
-      await runTestWithRetry(vitePackages, false, true, false);
+      await runTestWithRetry(await importVitePackages(), false, true, false);
     });
   });
 }
