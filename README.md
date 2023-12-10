@@ -46,7 +46,7 @@ export default defineConfig({
 
 ## Web Worker
 
-To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins`. To support Firefox, don't use ES workers. leave `worker.format` default and use `vite-plugin-top-level-await` >= 1.3.0:
+To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins`. To support Firefox, don't use ES workers. leave `worker.format` default and use `vite-plugin-top-level-await` >= 1.4.0 (see also [here](https://github.com/Menci/vite-plugin-top-level-await#workers)):
 
 ```ts
 export default defineConfig({

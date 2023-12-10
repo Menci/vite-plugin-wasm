@@ -2,12 +2,18 @@
   "name": "vite-plugin-wasm",
   "version": "3.2.2",
   "description": "Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and support `wasm-pack` generated modules.",
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "types": "./exports/require.d.cts",
+  "main": "./exports/require.cjs",
+  "module": "./exports/import.mjs",
   "exports": {
-    "types": "./exports/types.d.ts",
-    "import": "./exports/import.mjs",
-    "require": "./exports/require.cjs"
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./exports/import.mjs"
+    },
+    "require": {
+      "types": "./exports/require.d.cts",
+      "default": "./exports/require.cjs"
+    }
   },
   "repository": "https://github.com/Menci/vite-plugin-wasm",
   "author": "Menci <huanghaorui301@gmail.com>",
@@ -24,7 +30,7 @@
   "scripts": {
     "build": "tsc",
     "test": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --verbose --coverage --forceExit",
-    "format": "prettier --write '**/*.{mjs,cjs,js,ts}'",
+    "format": "prettier --write '**/*.{mjs,cjs,js,mts,cts,ts}'",
     "pretest": "yarn --cwd e2e && playwright install firefox"
   },
   "devDependencies": {
