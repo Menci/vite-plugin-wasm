@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+      - name: Set yarn to ignore engines version check
+        run: yarn config set ignore-engines true
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Build

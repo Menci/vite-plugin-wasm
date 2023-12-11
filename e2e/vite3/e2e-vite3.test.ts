@@ -1,11 +1,7 @@
-import * as vite from "vite";
-import { default as vitePluginLegacy } from "@vitejs/plugin-legacy";
-import { default as vitePluginTopLevelAwait } from "vite-plugin-top-level-await";
-
 import { runTests } from "../e2e";
 
-runTests(3, {
-  vite,
-  vitePluginLegacy,
-  vitePluginTopLevelAwait
-});
+runTests(3, async () => ({
+  vite: await import("vite"),
+  vitePluginLegacy: (await import("@vitejs/plugin-legacy")).default,
+  vitePluginTopLevelAwait: (await import("vite-plugin-top-level-await")).default
+}));
