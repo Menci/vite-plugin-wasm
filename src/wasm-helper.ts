@@ -3,7 +3,7 @@
 // This file is copied from
 // https://github.com/vitejs/vite/blob/3c0a6091fe96044e9dd84fbe5db3343339a88986/packages/vite/src/node/plugins/wasm.ts
 
-export const id = "/__vite-plugin-wasm-helper";
+export const id = "/__vite-plugin-wasm-sri-helper";
 
 /* istanbul ignore next */
 const wasmHelper = async (opts = {}, url: string) => {

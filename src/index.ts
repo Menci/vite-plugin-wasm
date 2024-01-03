@@ -10,13 +10,13 @@ export default function wasm(): any {
   // Detect Vitest with the existance of plugin with the name "vitest"
   let runningInVitest = false;
   return <Plugin>{
-    name: "vite-plugin-wasm",
+    name: "vite-plugin-wasm-sri",
     enforce: "pre",
     configResolved(config) {
       runningInVitest = config.plugins.some(plugin => plugin.name === "vitest");
 
       if (config.optimizeDeps?.esbuildOptions) {
-        // https://github.com/Menci/vite-plugin-wasm/pull/11
+        // https://github.com/Menci/vite-plugin-wasm-sri/pull/11
         if (!config.optimizeDeps.esbuildOptions.plugins) {
           config.optimizeDeps.esbuildOptions.plugins = [];
         }

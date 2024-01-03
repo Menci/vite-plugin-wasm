@@ -1,5 +1,5 @@
 {
-  "name": "vite-plugin-wasm-e2e",
+  "name": "vite-plugin-wasm-sri-e2e",
   "version": "1.0.0",
   "main": "e2e.test.ts",
   "license": "MIT",

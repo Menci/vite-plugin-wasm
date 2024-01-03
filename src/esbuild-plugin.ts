@@ -8,9 +8,9 @@ import { createBase64UriForWasm } from "./util";
 
 export function esbuildPlugin(): Plugin {
   return {
-    name: "vite-plugin-wasm",
+    name: "vite-plugin-wasm-sri",
     setup(build) {
-      const NAMESPACE = "vite-plugin-wasm-namespace";
+      const NAMESPACE = "vite-plugin-wasm-sri-namespace";
 
       build.onResolve({ filter: /\.wasm$/ }, args => ({
         path: createRequire(args.importer).resolve(args.path),
