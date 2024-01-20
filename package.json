@@ -33,6 +33,7 @@
     "format": "prettier --write '**/*.{mjs,cjs,js,mts,cts,ts}'",
     "pretest": "yarn --cwd e2e && playwright install firefox"
   },
+  "packageManager": "yarn@1.22.21",
   "devDependencies": {
     "@babel/core": "^7.23.5",
     "@babel/preset-env": "^7.23.5",

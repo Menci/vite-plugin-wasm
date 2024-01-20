@@ -35,22 +35,49 @@ export async function generateGlueCode(
   names: { initWasm: string; wasmUrl: string }
 ): Promise<string> {
   const { imports, exports } = await parseWasm(wasmFilePath);
-  return `
-${imports
-  .map(
-    ({ from, names }, i) =>
-      `import { ${names.map((name, j) => `${name} as __vite__wasmImport_${i}_${j}`).join(", ")} } from ${JSON.stringify(
-        from
-      )};`
-  )
-  .join("\n")}
-const __vite__wasmModule = await ${names.initWasm}({ ${imports
-    .map(
-      ({ from, names }, i) =>
-        `${JSON.stringify(from)}: { ${names.map((name, j) => `${name}: __vite__wasmImport_${i}_${j}`).join(", ")} }`
-    )
-    .join(", ")} }, ${names.wasmUrl});
-${exports
-  .map(name => `export ${name === "default" ? "default" : `const ${name} =`} __vite__wasmModule.${name};`)
-  .join("\n")}`;
+
+  const importStatements = imports.map(({ from }, i) => {
+    return `import * as __vite__wasmImport_${i} from ${JSON.stringify(from)};`;
+  });
+
+  const importObject = imports.map(({ from, names }, i) => {
+    return {
+      key: JSON.stringify(from),
+      value: names.map(name => {
+        return {
+          key: JSON.stringify(name),
+          value: `__vite__wasmImport_${i}[${JSON.stringify(name)}]`
+        };
+      })
+    };
+  });
+
+  const initCode = `const __vite__wasmModule = await ${names.initWasm}(${codegenSimpleObject(importObject)}, ${
+    names.wasmUrl
+  });`;
+
+  const exportsStatements = exports.map(name => {
+    return `export ${name === "default" ? "default" : `const ${name} =`} __vite__wasmModule.${name};`;
+  });
+
+  return [...importStatements, initCode, ...exportsStatements].join("\n");
+}
+
+type SimpleObject = SimpleObjectKeyValue[];
+
+interface SimpleObjectKeyValue {
+  key: string;
+  value: string | SimpleObject;
+}
+
+function codegenSimpleObject(obj: SimpleObject): string {
+  return `{ ${codegenSimpleObjectKeyValue(obj)} }`;
+}
+
+function codegenSimpleObjectKeyValue(obj: SimpleObject): string {
+  return obj
+    .map(({ key, value }) => {
+      return `${key}: ${typeof value === "string" ? value : codegenSimpleObject(value)}`;
+    })
+    .join(",\n");
 }
