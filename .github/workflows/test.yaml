@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        node: ["20"]
+        node: ["14", "16", "18", "20", "22"]
     name: Test on Node.js ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +23,6 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Build
         run: yarn build
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - name: Test
         run: yarn test
       - name: Check style
