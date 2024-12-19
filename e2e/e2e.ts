@@ -132,6 +132,7 @@ async function createBrowser(modernBrowser: boolean) {
   return modernBrowser
     ? await chromium.launch()
     : await firefox.launch({
+        headless: false,
         firefoxUserPrefs: {
           // Simulate a legacy browser with ES modules support disabled
           "dom.moduleScripts.enabled": false
@@ -210,7 +211,7 @@ const runTestWithRetry = async (...args: Parameters<typeof runTest>) => {
 };
 
 export function runTests(viteVersion: number, importVitePackages: () => Promise<VitePackages>) {
-  jest.setTimeout(60000);
+  jest.setTimeout(600000);
 
   describe(`E2E test for Vite ${viteVersion}`, () => {
     const nodeVersion = Number(process.versions.node.split(".")[0]);

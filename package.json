@@ -32,7 +32,7 @@
     "build": "tsc",
     "test": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --verbose --coverage --forceExit",
     "format": "prettier --write '**/*.{mjs,cjs,js,mts,cts,ts}'",
-    "pretest": "yarn --cwd e2e && playwright install firefox"
+    "pretest": "yarn --cwd e2e && playwright install firefox && playwright install chromium"
   },
   "packageManager": "yarn@1.22.21",
   "devDependencies": {
