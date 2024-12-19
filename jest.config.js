@@ -1,14 +1,16 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-module.exports = {
-  preset: "ts-jest/presets/default-esm",
+/** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
+export default {
+  verbose: true,
   transform: {
     "^.+\\.ts?$": [
       "ts-jest",
       {
-        useESM: true
+        useESM: true,
+        tsconfig: "tsconfig.jest.json"
       }
     ]
   },
+  extensionsToTreatAsEsm: [".ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },

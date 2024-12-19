@@ -4,8 +4,7 @@
 import { jest } from "@jest/globals";
 import { firefox } from "playwright";
 
-// import type { RollupOutput } from "rollup";
-type RollupOutput = any;
+import type { RollupOutput } from "rollup";
 import vitePluginWasm from "../src/index.js";
 
 import express from "express";
@@ -45,6 +44,7 @@ type VitePackages =
     };
 
 async function buildAndStartProdServer(
+  viteVersion: number,
   vitePackages: VitePackages,
   transformTopLevelAwait: boolean,
   modernOnly: boolean
@@ -56,6 +56,7 @@ async function buildAndStartProdServer(
     build: {
       target: "esnext"
     },
+    cacheDir: path.resolve(__dirname, "node_modules", `.vite${viteVersion}`),
     plugins: [
       ...(modernOnly ? [] : [vitePluginLegacy()]),
       vitePluginWasm(),
@@ -104,12 +105,13 @@ async function buildAndStartProdServer(
   return `http://127.0.0.1:${port}/`;
 }
 
-async function startDevServer(vitePackages: VitePackages): Promise<string> {
+async function startDevServer(viteVersion: number, vitePackages: VitePackages): Promise<string> {
   const { vite } = vitePackages;
 
   const devServer = await vite.createServer({
     root: __dirname,
     plugins: [vitePluginWasm()],
+    cacheDir: path.resolve(__dirname, "node_modules", `.vite${viteVersion}`),
     logLevel: "error"
   });
 
@@ -132,12 +134,14 @@ async function createBrowser(modernBrowser: boolean) {
 }
 
 async function runTest(
+  viteVersion: number,
   vitePackages: VitePackages,
   devServer: boolean,
   transformTopLevelAwait: boolean,
   modernBrowser: boolean
 ) {
   const server = await (devServer ? startDevServer : buildAndStartProdServer)(
+    viteVersion,
     vitePackages,
     transformTopLevelAwait,
     modernBrowser
@@ -204,19 +208,19 @@ export function runTests(viteVersion: number, importVitePackages: () => Promise<
     }
 
     it(`vite ${viteVersion}: should work on modern browser in Vite dev server`, async () => {
-      await runTestWithRetry(await importVitePackages(), true, false, true);
+      await runTestWithRetry(viteVersion, await importVitePackages(), true, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser without top-level await transform`, async () => {
-      await runTestWithRetry(await importVitePackages(), false, false, true);
+      await runTestWithRetry(viteVersion, await importVitePackages(), false, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser with top-level await transform`, async () => {
-      await runTestWithRetry(await importVitePackages(), false, true, true);
+      await runTestWithRetry(viteVersion, await importVitePackages(), false, true, true);
     });
 
     it(`vite ${viteVersion}: should work on legacy browser`, async () => {
-      await runTestWithRetry(await importVitePackages(), false, true, false);
+      await runTestWithRetry(viteVersion, await importVitePackages(), false, true, false);
     });
   });
 }
