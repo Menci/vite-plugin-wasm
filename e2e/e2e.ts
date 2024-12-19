@@ -37,6 +37,11 @@ type VitePackages =
       vite: typeof import("./vite5/node_modules/vite");
       vitePluginLegacy: (typeof import("./vite5/node_modules/@vitejs/plugin-legacy"))["default"];
       vitePluginTopLevelAwait: (typeof import("./vite5/node_modules/vite-plugin-top-level-await"))["default"];
+    }
+  | {
+      vite: typeof import("./vite6/node_modules/vite");
+      vitePluginLegacy: (typeof import("./vite6/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite6/node_modules/vite-plugin-top-level-await"))["default"];
     };
 
 async function buildAndStartProdServer(
@@ -80,7 +85,7 @@ async function buildAndStartProdServer(
     if (filePath in bundle) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Methods", "*");
-      const contentType = mime.getType(filePath);
+      const contentType = mime.getType(filePath) || "application/octet-stream";
       const contentTypeWithEncoding = contentType + (contentType.includes("text/") ? "; charset=utf-8" : "");
       res.contentType(contentTypeWithEncoding);
       res.send(bundle[filePath]);

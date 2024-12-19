@@ -1,0 +1,16 @@
+{
+  "name": "dependencies-vite6",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^6",
+    "vite": "6",
+    "vite-plugin-top-level-await": "^1.1.1"
+  },
+  "dependencies": {
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0"
+  }
+}
