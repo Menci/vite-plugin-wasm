@@ -1,12 +1,15 @@
 import path from "path";
-import { Plugin } from "esbuild";
+import type { ResolvedConfig } from "vite";
 import { createRequire } from "module";
 
 import * as wasmHelper from "./wasm-helper";
 import { generateGlueCode } from "./wasm-parser";
 import { createBase64UriForWasm } from "./util";
 
-export function esbuildPlugin(): Plugin {
+type ESBuildOptions = ResolvedConfig["optimizeDeps"]["esbuildOptions"];
+type ESBuildPlugin = ESBuildOptions["plugins"][number];
+
+export function esbuildPlugin(): ESBuildPlugin {
   return {
     name: "vite-plugin-wasm",
     setup(build) {

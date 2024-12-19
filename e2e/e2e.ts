@@ -1,19 +1,21 @@
 /// <reference types="jest-extended" />
 /* istanbul ignore file */
 
-import { jest } from "@jest/globals";
-import { firefox } from "playwright";
+import path from "path";
+import url from "url";
+import fs from "fs";
+import type { AddressInfo } from "net";
 
-// import type { RollupOutput } from "rollup";
-type RollupOutput = any;
+import { jest } from "@jest/globals";
+import { firefox, chromium } from "playwright";
+
+import type { RollupOutput } from "rollup";
 import vitePluginWasm from "../src/index.js";
 
 import express from "express";
 import waitPort from "wait-port";
 import mime from "mime";
-import path from "path";
-import url from "url";
-import type { AddressInfo } from "net";
+import { temporaryDirectory } from "tempy";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -37,9 +39,15 @@ type VitePackages =
       vite: typeof import("./vite5/node_modules/vite");
       vitePluginLegacy: (typeof import("./vite5/node_modules/@vitejs/plugin-legacy"))["default"];
       vitePluginTopLevelAwait: (typeof import("./vite5/node_modules/vite-plugin-top-level-await"))["default"];
+    }
+  | {
+      vite: typeof import("./vite6/node_modules/vite");
+      vitePluginLegacy: (typeof import("./vite6/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite6/node_modules/vite-plugin-top-level-await"))["default"];
     };
 
 async function buildAndStartProdServer(
+  tempDir: string,
   vitePackages: VitePackages,
   transformTopLevelAwait: boolean,
   modernOnly: boolean
@@ -49,8 +57,10 @@ async function buildAndStartProdServer(
   const result = await vite.build({
     root: __dirname,
     build: {
-      target: "esnext"
+      target: "esnext",
+      outDir: path.resolve(tempDir, "dist")
     },
+    cacheDir: path.resolve(tempDir, ".vite"),
     plugins: [
       ...(modernOnly ? [] : [vitePluginLegacy()]),
       vitePluginWasm(),
@@ -80,7 +90,7 @@ async function buildAndStartProdServer(
     if (filePath in bundle) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Methods", "*");
-      const contentType = mime.getType(filePath);
+      const contentType = mime.getType(filePath) || "application/octet-stream";
       const contentTypeWithEncoding = contentType + (contentType.includes("text/") ? "; charset=utf-8" : "");
       res.contentType(contentTypeWithEncoding);
       res.send(bundle[filePath]);
@@ -99,12 +109,13 @@ async function buildAndStartProdServer(
   return `http://127.0.0.1:${port}/`;
 }
 
-async function startDevServer(vitePackages: VitePackages): Promise<string> {
+async function startDevServer(tempDir: string, vitePackages: VitePackages): Promise<string> {
   const { vite } = vitePackages;
 
   const devServer = await vite.createServer({
     root: __dirname,
     plugins: [vitePluginWasm()],
+    cacheDir: path.resolve(tempDir, ".vite"),
     logLevel: "error"
   });
 
@@ -118,12 +129,15 @@ async function startDevServer(vitePackages: VitePackages): Promise<string> {
 }
 
 async function createBrowser(modernBrowser: boolean) {
-  return await firefox.launch({
-    firefoxUserPrefs: {
-      // Simulate a legacy browser with ES modules support disabled
-      "dom.moduleScripts.enabled": modernBrowser
-    }
-  });
+  return modernBrowser
+    ? await chromium.launch()
+    : await firefox.launch({
+        headless: false,
+        firefoxUserPrefs: {
+          // Simulate a legacy browser with ES modules support disabled
+          "dom.moduleScripts.enabled": false
+        }
+      });
 }
 
 async function runTest(
@@ -132,7 +146,15 @@ async function runTest(
   transformTopLevelAwait: boolean,
   modernBrowser: boolean
 ) {
+  const tempDir = temporaryDirectory();
+  process.on("exit", () => {
+    try {
+      fs.rmdirSync(tempDir, { recursive: true });
+    } catch {}
+  });
+
   const server = await (devServer ? startDevServer : buildAndStartProdServer)(
+    tempDir,
     vitePackages,
     transformTopLevelAwait,
     modernBrowser
@@ -189,7 +211,7 @@ const runTestWithRetry = async (...args: Parameters<typeof runTest>) => {
 };
 
 export function runTests(viteVersion: number, importVitePackages: () => Promise<VitePackages>) {
-  jest.setTimeout(60000);
+  jest.setTimeout(600000);
 
   describe(`E2E test for Vite ${viteVersion}`, () => {
     const nodeVersion = Number(process.versions.node.split(".")[0]);

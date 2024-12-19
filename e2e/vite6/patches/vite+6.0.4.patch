@@ -1,0 +1,13 @@
+diff --git a/node_modules/vite/dist/node/chunks/dep-BZMjGe_U.js b/node_modules/vite/dist/node/chunks/dep-BZMjGe_U.js
+index 8645620..820fd3e 100644
+--- a/node_modules/vite/dist/node/chunks/dep-BZMjGe_U.js
++++ b/node_modules/vite/dist/node/chunks/dep-BZMjGe_U.js
+@@ -10284,7 +10284,7 @@ function deepClone(value) {
+     return value;
+   }
+   if (value instanceof RegExp) {
+-    return structuredClone(value);
++    return new RegExp(value);
+   }
+   if (typeof value === "object" && value != null) {
+     throw new Error("Cannot deep clone non-plain object");
