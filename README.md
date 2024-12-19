@@ -10,7 +10,7 @@ Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and 
 
 ## Installation
 
-Now this plugin supports both Vite 2.x and 3.x. Just install it:
+This plugin supports from Vite 2.x to 6.x. Just install it:
 
 ```bash
 yarn add -D vite-plugin-wasm
