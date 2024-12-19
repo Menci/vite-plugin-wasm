@@ -7,7 +7,7 @@ import fs from "fs";
 import type { AddressInfo } from "net";
 
 import { jest } from "@jest/globals";
-import { firefox } from "playwright";
+import { firefox, chromium } from "playwright";
 
 import type { RollupOutput } from "rollup";
 import vitePluginWasm from "../src/index.js";
@@ -129,12 +129,14 @@ async function startDevServer(tempDir: string, vitePackages: VitePackages): Prom
 }
 
 async function createBrowser(modernBrowser: boolean) {
-  return await firefox.launch({
-    firefoxUserPrefs: {
-      // Simulate a legacy browser with ES modules support disabled
-      "dom.moduleScripts.enabled": modernBrowser
-    }
-  });
+  return modernBrowser
+    ? await chromium.launch()
+    : await firefox.launch({
+        firefoxUserPrefs: {
+          // Simulate a legacy browser with ES modules support disabled
+          "dom.moduleScripts.enabled": false
+        }
+      });
 }
 
 async function runTest(
