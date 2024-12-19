@@ -1,6 +1,11 @@
 /// <reference types="jest-extended" />
 /* istanbul ignore file */
 
+import path from "path";
+import url from "url";
+import fs from "fs";
+import type { AddressInfo } from "net";
+
 import { jest } from "@jest/globals";
 import { firefox } from "playwright";
 
@@ -10,9 +15,7 @@ import vitePluginWasm from "../src/index.js";
 import express from "express";
 import waitPort from "wait-port";
 import mime from "mime";
-import path from "path";
-import url from "url";
-import type { AddressInfo } from "net";
+import { temporaryDirectory } from "tempy";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -44,7 +47,7 @@ type VitePackages =
     };
 
 async function buildAndStartProdServer(
-  viteVersion: number,
+  tempDir: string,
   vitePackages: VitePackages,
   transformTopLevelAwait: boolean,
   modernOnly: boolean
@@ -54,9 +57,10 @@ async function buildAndStartProdServer(
   const result = await vite.build({
     root: __dirname,
     build: {
-      target: "esnext"
+      target: "esnext",
+      outDir: path.resolve(tempDir, "dist")
     },
-    cacheDir: path.resolve(__dirname, "node_modules", `.vite${viteVersion}`),
+    cacheDir: path.resolve(tempDir, ".vite"),
     plugins: [
       ...(modernOnly ? [] : [vitePluginLegacy()]),
       vitePluginWasm(),
@@ -105,13 +109,13 @@ async function buildAndStartProdServer(
   return `http://127.0.0.1:${port}/`;
 }
 
-async function startDevServer(viteVersion: number, vitePackages: VitePackages): Promise<string> {
+async function startDevServer(tempDir: string, vitePackages: VitePackages): Promise<string> {
   const { vite } = vitePackages;
 
   const devServer = await vite.createServer({
     root: __dirname,
     plugins: [vitePluginWasm()],
-    cacheDir: path.resolve(__dirname, "node_modules", `.vite${viteVersion}`),
+    cacheDir: path.resolve(tempDir, ".vite"),
     logLevel: "error"
   });
 
@@ -134,14 +138,20 @@ async function createBrowser(modernBrowser: boolean) {
 }
 
 async function runTest(
-  viteVersion: number,
   vitePackages: VitePackages,
   devServer: boolean,
   transformTopLevelAwait: boolean,
   modernBrowser: boolean
 ) {
+  const tempDir = temporaryDirectory();
+  process.on("exit", () => {
+    try {
+      fs.rmdirSync(tempDir, { recursive: true });
+    } catch {}
+  });
+
   const server = await (devServer ? startDevServer : buildAndStartProdServer)(
-    viteVersion,
+    tempDir,
     vitePackages,
     transformTopLevelAwait,
     modernBrowser
@@ -208,19 +218,19 @@ export function runTests(viteVersion: number, importVitePackages: () => Promise<
     }
 
     it(`vite ${viteVersion}: should work on modern browser in Vite dev server`, async () => {
-      await runTestWithRetry(viteVersion, await importVitePackages(), true, false, true);
+      await runTestWithRetry(await importVitePackages(), true, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser without top-level await transform`, async () => {
-      await runTestWithRetry(viteVersion, await importVitePackages(), false, false, true);
+      await runTestWithRetry(await importVitePackages(), false, false, true);
     });
 
     it(`vite ${viteVersion}: should work on modern browser with top-level await transform`, async () => {
-      await runTestWithRetry(viteVersion, await importVitePackages(), false, true, true);
+      await runTestWithRetry(await importVitePackages(), false, true, true);
     });
 
     it(`vite ${viteVersion}: should work on legacy browser`, async () => {
-      await runTestWithRetry(viteVersion, await importVitePackages(), false, true, false);
+      await runTestWithRetry(await importVitePackages(), false, true, false);
     });
   });
 }
