@@ -4,6 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "postinstall": "patch-package"
+  },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^6",
     "vite": "6",
