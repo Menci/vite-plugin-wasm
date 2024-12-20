@@ -1,5 +1,5 @@
 /** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
-export default {
+module.exports = {
   verbose: true,
   transform: {
     "^.+\\.ts?$": [
