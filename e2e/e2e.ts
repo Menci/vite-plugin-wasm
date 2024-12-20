@@ -132,7 +132,6 @@ async function createBrowser(modernBrowser: boolean) {
   return modernBrowser
     ? await chromium.launch()
     : await firefox.launch({
-        headless: false,
         firefoxUserPrefs: {
           // Simulate a legacy browser with ES modules support disabled
           "dom.moduleScripts.enabled": false
