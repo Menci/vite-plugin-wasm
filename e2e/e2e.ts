@@ -44,6 +44,12 @@ type VitePackages =
       vite: typeof import("./vite6/node_modules/vite");
       vitePluginLegacy: (typeof import("./vite6/node_modules/@vitejs/plugin-legacy"))["default"];
       vitePluginTopLevelAwait: (typeof import("./vite6/node_modules/vite-plugin-top-level-await"))["default"];
+    }
+  | {
+      vite: typeof import("./vite7/node_modules/vite");
+      // @ts-expect-error: @vitejs/plugin-legacy v7.0.0 doesn't have type export
+      vitePluginLegacy: (typeof import("./vite7/node_modules/@vitejs/plugin-legacy"))["default"];
+      vitePluginTopLevelAwait: (typeof import("./vite7/node_modules/vite-plugin-top-level-await"))["default"];
     };
 
 async function buildAndStartProdServer(
@@ -207,6 +213,12 @@ export function runTests(viteVersion: number, importVitePackages: () => Promise<
 
   describe(`E2E test for Vite ${viteVersion}`, () => {
     const nodeVersion = Number(process.versions.node.split(".")[0]);
+
+    if (viteVersion >= 7 && nodeVersion < 20) {
+      it(`vite ${viteVersion}: skipped on Node.js ${nodeVersion}`, async () => {});
+      return;
+    }
+
     if (viteVersion >= 5 && nodeVersion < 18) {
       it(`vite ${viteVersion}: skipped on Node.js ${nodeVersion}`, async () => {});
       return;
