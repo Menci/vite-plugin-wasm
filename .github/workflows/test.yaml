@@ -6,13 +6,11 @@ on:
 
 jobs:
   build:
+    runs-on: windows-latest
     strategy:
-      fail-fast: false
       matrix:
-        node: ["16", "18", "20", "22", "24"]
-        os: ["windows-latest", "ubuntu-latest"]
-    runs-on: ${{ matrix.os }}
-    name: Test on Node.js ${{ matrix.node }} on ${{ matrix.os }}
+        node: ["14", "16", "18", "20", "22"]
+    name: Test on Node.js ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup node

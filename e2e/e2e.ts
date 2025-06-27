@@ -7,7 +7,7 @@ import fs from "fs";
 import type { AddressInfo } from "net";
 
 import { jest } from "@jest/globals";
-import { chromium } from "playwright";
+import { firefox, chromium } from "playwright";
 
 import type { RollupOutput } from "rollup";
 import vitePluginWasm from "../src/index.js";
@@ -68,7 +68,7 @@ async function buildAndStartProdServer(
     },
     cacheDir: path.resolve(tempDir, ".vite"),
     plugins: [
-      ...(modernOnly ? [] : [vitePluginLegacy({renderModernChunks: false})]),
+      ...(modernOnly ? [] : [vitePluginLegacy()]),
       vitePluginWasm(),
       ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])
     ],
@@ -134,8 +134,15 @@ async function startDevServer(tempDir: string, vitePackages: VitePackages): Prom
   return `http://localhost:${listeningAddress.port}`;
 }
 
-async function createBrowser() {
-  return await chromium.launch();
+async function createBrowser(modernBrowser: boolean) {
+  return modernBrowser
+    ? await chromium.launch()
+    : await firefox.launch({
+        firefoxUserPrefs: {
+          // Simulate a legacy browser with ES modules support disabled
+          "dom.moduleScripts.enabled": false
+        }
+      });
 }
 
 async function runTest(
@@ -158,7 +165,7 @@ async function runTest(
     modernBrowser
   );
 
-  const browser = await createBrowser();
+  const browser = await createBrowser(modernBrowser);
   const page = await browser.newPage();
 
   page.goto(server);
@@ -236,16 +243,8 @@ export function runTests(viteVersion: number, importVitePackages: () => Promise<
       await runTestWithRetry(await importVitePackages(), false, true, true);
     });
 
-    if (viteVersion < 4) {
-      // We need the `renderModernChunks` option in `@vitejs/plugin-legacy` to
-      // simulate a legacy browser. This option is not available in older
-      // versions of `@vitejs/plugin-legacy`.
-      it(`vite ${viteVersion}: skipped on legacy browser`, async () => {});
-      return;
-    } else {
-      it(`vite ${viteVersion}: should work on legacy browser`, async () => {
-        await runTestWithRetry(await importVitePackages(), false, true, false);
-      });
-    }
+    it(`vite ${viteVersion}: should work on legacy browser`, async () => {
+      await runTestWithRetry(await importVitePackages(), false, true, false);
+    });
   });
 }
