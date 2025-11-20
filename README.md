@@ -10,7 +10,7 @@ Add WebAssembly ESM integration (aka. Webpack's `asyncWebAssembly`) to Vite and 
 
 ## Installation
 
-This plugin supports from Vite 2.x to 6.x. Just install it:
+This plugin supports Vite 2.x to 7.x. Just install it:
 
 ```bash
 yarn add -D vite-plugin-wasm
@@ -48,7 +48,7 @@ export default defineConfig({
 
 To use this plugin in Web Workers. Add it (and `vite-plugin-top-level-await` if necessary) to `worker.plugins`. To support Firefox, don't use ES workers. leave `worker.format` default and use `vite-plugin-top-level-await` >= 1.4.0 (see also [here](https://github.com/Menci/vite-plugin-top-level-await#workers)):
 
-```ts
+```typescript
 export default defineConfig({
   plugins: [
     wasm(),
@@ -67,4 +67,4 @@ export default defineConfig({
 
 # Notes
 
-TypeScript typing is broken. Since we can't declare a module with `Record<string, any>` as its named export map. Your `import ... from "./module.wasm";` will still got Vite's bulit-in typing, but the transformed code is fine. So just use an asterisk import `import * as wasmModule from "./module.wasm"` and type assertion (you have typing for your WASM files, right?).
+TypeScript typing is broken. Since we can't declare a module with `Record<string, any>` as its named export map, your `import ... from "./module.wasm";` will still get Vite's built-in typing, but the transformed code is fine. Thus, you can simply use an asterisk import `import * as wasmModule from "./module.wasm"` and type assertion (you have typing for your WASM files, right?).
