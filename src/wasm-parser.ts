@@ -60,12 +60,12 @@ export async function generateGlueCode(
   const nameMap = new Map<string, string>();
 
   // export const { a, b, c } = __vite__wasmModule;
-  // const { "invalid-name": _0 } = __vite__wasmModule; export { _0 as "invalid-name" };
+  // const { "invalid-name": __vite__wasmExport_0 } = __vite__wasmModule; export { __vite__wasmExport_0 as "invalid-name" };
   exports.forEach((name, index) => {
     if (isValidJsDecalreName(name)) {
       exportsStatements.push(`  ${name},`);
     } else {
-      const placeholderName = `_${index}`;
+      const placeholderName = `__vite__wasmExport_${index}`;
       const exportName = JSON.stringify(name);
       exportsStatements.push(`  ${exportName}: ${placeholderName},`);
       nameMap.set(name, placeholderName);
@@ -75,7 +75,7 @@ export async function generateGlueCode(
     exportsStatements.unshift(`const {`);
     exportsStatements.push(`} = __vite__wasmModule;`);
     exportsStatements.push(`export {`);
-    exports.map(name => {
+    exports.forEach(name => {
       const localName = nameMap.get(name);
       if (localName) {
         exportsStatements.push(`  ${localName} as ${JSON.stringify(name)},`);
