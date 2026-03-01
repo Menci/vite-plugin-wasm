@@ -1,7 +1,7 @@
 /// <reference types="jest-extended" />
 
 import { createRequire } from "module";
-import { parseWasm } from "./wasm-parser.js";
+import { parseWasm, generateGlueCode } from "./wasm-parser.js";
 import "jest-extended";
 
 // @ts-ignore this file is ESM
@@ -37,5 +37,28 @@ describe("WASM parser", () => {
   it("should throw error for an invalid WASM file", async () => {
     const filename = require.resolve("@syntect/wasm/dist/syntect_bg.js");
     await expect(parseWasm(filename)).toReject();
+  });
+});
+
+describe("generateGlueCode", () => {
+  it("should generate valid glue code for WASM with invalid identifier exports (e.g., syscall.seek)", async () => {
+    const filename = require.resolve("@wasm-fmt/gofmt/wasm");
+    const glueCode = await generateGlueCode(filename, {
+      initWasm: "__vite__initWasm",
+      wasmUrl: "__vite__wasmUrl"
+    });
+
+    // Should use destructuring with quoted property names for invalid identifiers
+    expect(glueCode).toInclude("const {");
+    expect(glueCode).toInclude('"syscall.seek": __vite__wasmExport_');
+    expect(glueCode).toInclude("} = __vite__wasmModule;");
+
+    // Should re-export with original name using export { ... as "..." } syntax
+    expect(glueCode).toInclude("export {");
+    expect(glueCode).toInclude('as "syscall.seek"');
+    expect(glueCode).toInclude("};");
+
+    // Verify the generated code is syntactically valid by checking for no raw dots in export const
+    expect(glueCode).not.toMatch(/export const syscall\.seek/);
   });
 });
