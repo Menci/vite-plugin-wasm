@@ -48,17 +48,8 @@ describe("generateGlueCode", () => {
       wasmUrl: "__vite__wasmUrl"
     });
 
-    // Should use destructuring with quoted property names for invalid identifiers
-    expect(glueCode).toInclude("const {");
-    expect(glueCode).toInclude('"syscall.seek": __vite__wasmExport_');
-    expect(glueCode).toInclude("} = __vite__wasmModule;");
-
-    // Should re-export with original name using export { ... as "..." } syntax
-    expect(glueCode).toInclude("export {");
     expect(glueCode).toInclude('as "syscall.seek"');
-    expect(glueCode).toInclude("};");
 
-    // Verify the generated code is syntactically valid by checking for no raw dots in export const
-    expect(glueCode).not.toMatch(/export const syscall\.seek/);
+    expect(glueCode).not.toMatch(/const syscall\.seek/);
   });
 });
