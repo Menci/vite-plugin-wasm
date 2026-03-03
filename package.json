@@ -42,6 +42,7 @@
     "@syntect/wasm": "^0.0.4",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@wasm-fmt/gofmt": "0.7.3",
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
     "express": "^4.21.2",

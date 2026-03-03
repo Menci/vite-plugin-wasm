@@ -1,7 +1,7 @@
 /// <reference types="jest-extended" />
 
 import { createRequire } from "module";
-import { parseWasm } from "./wasm-parser.js";
+import { parseWasm, generateGlueCode } from "./wasm-parser.js";
 import "jest-extended";
 
 // @ts-ignore this file is ESM
@@ -37,5 +37,19 @@ describe("WASM parser", () => {
   it("should throw error for an invalid WASM file", async () => {
     const filename = require.resolve("@syntect/wasm/dist/syntect_bg.js");
     await expect(parseWasm(filename)).toReject();
+  });
+});
+
+describe("generateGlueCode", () => {
+  it("should generate valid glue code for WASM with invalid identifier exports (e.g., syscall.seek)", async () => {
+    const filename = require.resolve("@wasm-fmt/gofmt/wasm");
+    const glueCode = await generateGlueCode(filename, {
+      initWasm: "__vite__initWasm",
+      wasmUrl: "__vite__wasmUrl"
+    });
+
+    expect(glueCode).toInclude('as "syscall.seek"');
+
+    expect(glueCode).not.toMatch(/const syscall\.seek/);
   });
 });
