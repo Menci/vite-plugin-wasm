@@ -1,16 +1,14 @@
-/// <reference types="jest-extended" />
-
 import { createRequire } from "module";
-import { parseWasm, generateGlueCode } from "./wasm-parser.js";
-import "jest-extended";
+import assert from "assert";
+import { describe, it } from "../test-helpers.mjs";
 
-// @ts-ignore this file is ESM
 const require = createRequire(import.meta.url);
+const { parseWasm, generateGlueCode } = require("../dist/wasm-parser.js");
 
 describe("WASM parser", () => {
   it("should parse `wasm-bindgen` generated WASM files correctly", async () => {
     const filename = require.resolve("@syntect/wasm/dist/syntect_bg.wasm");
-    expect(await parseWasm(filename)).toStrictEqual({
+    assert.deepStrictEqual(await parseWasm(filename), {
       imports: [{ from: "./syntect_bg.js", names: ["__wbindgen_throw"] }],
       exports: [
         "memory",
@@ -36,7 +34,7 @@ describe("WASM parser", () => {
 
   it("should throw error for an invalid WASM file", async () => {
     const filename = require.resolve("@syntect/wasm/dist/syntect_bg.js");
-    await expect(parseWasm(filename)).toReject();
+    await assert.rejects(() => parseWasm(filename));
   });
 });
 
@@ -48,8 +46,7 @@ describe("generateGlueCode", () => {
       wasmUrl: "__vite__wasmUrl"
     });
 
-    expect(glueCode).toInclude('as "syscall.seek"');
-
-    expect(glueCode).not.toMatch(/const syscall\.seek/);
+    assert.ok(glueCode.includes('as "syscall.seek"'));
+    assert.ok(!/const syscall\.seek/.test(glueCode));
   });
 });
