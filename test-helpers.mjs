@@ -1,5 +1,10 @@
-const nodeVersion = Number(process.versions.node.split(".")[0]);
-const mod = nodeVersion >= 16 ? await import("node:test") : (await import("test")).default;
+const mod = await (async () => {
+  try {
+    return await import("node:test");
+  } catch {
+    return (await import("test")).default;
+  }
+})();
 const { describe, it, before, after } = mod;
 
 if (typeof before !== "function") {
