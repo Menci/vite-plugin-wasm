@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "node src/wasm-parser.spec.mjs && node e2e/vite2/e2e-vite2.test.mjs && node e2e/vite3/e2e-vite3.test.mjs && node e2e/vite4/e2e-vite4.test.mjs && node e2e/vite5/e2e-vite5.test.mjs && node e2e/vite6/e2e-vite6.test.mjs && node e2e/vite7/e2e-vite7.test.mjs",
+    "test": "node src/wasm-parser.spec.mjs && node e2e/vite2/e2e-vite2.test.mjs && node e2e/vite3/e2e-vite3.test.mjs && node e2e/vite4/e2e-vite4.test.mjs && node e2e/vite5/e2e-vite5.test.mjs && node e2e/vite6/e2e-vite6.test.mjs && node e2e/vite7/e2e-vite7.test.mjs && node e2e/vite8/e2e-vite8.test.mjs",
     "format": "prettier --write '**/*.{mjs,cjs,js,mts,cts,ts}'",
     "pretest": "yarn --cwd e2e && playwright install firefox && playwright install chromium"
   },
@@ -54,7 +54,7 @@
     "wait-port": "^1.1.0"
   },
   "peerDependencies": {
-    "vite": "^2 || ^3 || ^4 || ^5 || ^6 || ^7"
+    "vite": "^2 || ^3 || ^4 || ^5 || ^6 || ^7 || ^8"
   },
   "config": {
     "commitizen": {

@@ -1,0 +1,11 @@
+{
+  "name": "dependencies-vite8",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^8",
+    "vite": "8"
+  }
+}
