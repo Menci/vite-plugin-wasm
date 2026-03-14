@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         node: ["14", "16", "18", "20", "22"]
+      fail-fast: false
     name: Test on Node.js ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v4

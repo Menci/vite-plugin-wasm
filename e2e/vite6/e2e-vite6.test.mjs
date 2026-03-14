@@ -1,4 +1,4 @@
-import { runTests } from "../e2e";
+import { runTests } from "../e2e.mjs";
 
 runTests(6, async () => ({
   vite: await import("vite"),
