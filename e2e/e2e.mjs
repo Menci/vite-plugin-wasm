@@ -28,7 +28,7 @@ async function buildAndStartProdServer(tempDir, vitePackages, transformTopLevelA
     plugins: [
       ...(modernOnly ? [] : [vitePluginLegacy()]),
       vitePluginWasm(),
-      ...(transformTopLevelAwait ? [vitePluginTopLevelAwait()] : [])
+      ...(transformTopLevelAwait ? [vitePluginTopLevelAwait?.()] : [])
     ],
     logLevel: "error"
   });
