@@ -30,7 +30,22 @@ const wasmHelper = async (opts = {}, url: string) => {
     // a lot of static file servers, so we just work around it by getting the
     // raw buffer.
     // @ts-ignore
-    const response = await fetch(url);
+    const getBaseUrl = () => {
+      const currentScriptUrl = getRunningScript()()
+      if (!currentScriptUrl) return ''
+      let baseUrl = ''
+      try {
+        baseUrl = new URL(currentScriptUrl).origin
+      } catch(err){}
+      return baseUrl
+    }
+    const getRunningScript = ()=>{
+      return ()=>{
+        return new Error().stack.match(/([^ \n])*([a-z]*:\/\/\/?)*?[a-z0-9\/\\]*\.js/ig)?.[0]
+      }
+    }
+    const baseUrl = typeof window !== 'undefined' ? getBaseUrl() : ''
+    const response = await fetch(baseUrl + url);
     const contentType = response.headers.get("Content-Type") || "";
     if ("instantiateStreaming" in WebAssembly && contentType.startsWith("application/wasm")) {
       result = await WebAssembly.instantiateStreaming(response, opts);
